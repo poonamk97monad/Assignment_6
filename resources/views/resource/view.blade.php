@@ -109,7 +109,7 @@
                 data:{collection_id:collection_id},
 
                 success:function(data){
-                    window.location="/collections/{{$arrObjResources->id}}"
+                    window.location="/resources/{{$arrObjResources->id}}"
 
                 }
             });

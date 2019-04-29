@@ -7,7 +7,6 @@ use App\Model\Collection;
 use App\Helpers\CreateSlug;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redis;
-use App\Http\Requests\StoreAddCollectionResource;
 use App\Http\Requests\StoreAddCollectionToResource;
 
 class ResourcesController extends Controller
@@ -83,7 +82,7 @@ class ResourcesController extends Controller
      * @param  $intResourceId
      * @return \Illuminate\Http\Response
      */
-    public function postAddCollectionToResource(StoreAddCollectionResource $objRequest, $intResourceId) {
+    public function postAddCollectionToResource(Request $objRequest, $intResourceId) {
         $objResource = Resource::find($intResourceId);
         $objResource->collections()->attach($objRequest->get('collection_id'));
         return response()->json(['success'=>'Add collection to resource ']);
@@ -95,7 +94,7 @@ class ResourcesController extends Controller
      * @param  $intResourceId
      * @return \Illuminate\Http\Response
      */
-    public function postRemoveCollectionToResource(StoreAddCollectionResource $objRequest, $intResourceId) {
+    public function postRemoveCollectionToResource(Request $objRequest, $intResourceId) {
         $objResource = Resource::find($intResourceId);
         $objResource->collections()->detach($objRequest->get('collection_id'));
         return response()->json(['success'=>'Data is successfully deleted']);
