@@ -7,13 +7,12 @@ use App\Model\Collection;
 use Illuminate\Http\Request;
 use App\Helpers\CreateSlug;
 use Illuminate\Support\Facades\Redis;
-/*use App\Http\Requests\StoreAddResourceToCollection;*/
+use App\Http\Requests\StoreAddResourceToCollection;
 
 class CollectionsController extends Controller
 {
     /**
      * Display a listing of the resource.
-     *
      * @return \Illuminate\Http\Response
      */
     public function index() {
@@ -22,38 +21,25 @@ class CollectionsController extends Controller
         return view('collection.index', compact('arrObjCollections'))
             ->with('i', (request()->input('page', 1) - 1) * 5);
     }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create() {
-
-        return view('create_collections');
-    }
-
     /**
      * Store a newly created resource in storage.
-     *
      * @param  \Illuminate\Http\Request  $strRequest
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request) {
-        $collection = new Collection();
-        $collection->title       = $request->input('title');
-        $collection->slug        = $request->input('slug');
-        $collection->description = $request->input('description');
-        $collection->save();
-     return redirect('collections')->with('success', 'Data Added successfully.');
-//        $input = $request->all();
+    public function store(StoreAddResourceToCollection $objResourcetoCollectionRequest) {
 
-       return response()->json(['success'=>'Got Simple Ajax Request']);
+        $arrFormData = array(
+            'title'              =>   $objResourcetoCollectionRequest->title,
+            'slug'               =>   (new CreateSlug())->get($objResourcetoCollectionRequest->title),
+            'description'        =>   $objResourcetoCollectionRequest->description
+        );
+
+        Collection::create($arrFormData);
+        return response()->json(['success'=>'add data ']);
     }
 
-    /**s
+    /**
      * Display the specified resource.
-     *
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
@@ -65,56 +51,29 @@ class CollectionsController extends Controller
         return view('collection.view', array('objCollection' => $objCollection, 'arrObjResources' => $arrObjResources));
 
     }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($intId) {
-
-        $objData = Resource::findOrFail($intId);
-
-        $arrFormData = array(
-            'title'              =>   $objData->title,
-            'slug'               =>   $objData->slug,
-            'description'        =>   $objData->description
-        );
-
-        Collection::create($arrFormData);
-
-        return redirect('collection_view',compact('$arrFormData'));
-    }
-
     /**
      * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $intCollectionId,$intResourceId
+     * @param  \Illuminate\Http\Request  $objRequest
+     * @param  int  $intCollectionId
      * @return \Illuminate\Http\Response
      */
-    public function postAddToResource(Request $obRequest,$intCollectionId) {
-//        dd($intCollectionId);
-//        dd($obRequest->get('resource_id'));
+    public function postAddResourceToCollection(Request $objRequest,$intCollectionId) {
         $objCollection = Collection::find($intCollectionId);
-        $objCollection->resources()->attach($obRequest->get('resource_id'));
-//        return redirect('collections/'.$intCollectionId);
-//     return redirect('collections/'.$intCollectionId);
-//        return view('collection.view');
-        return redirect()->back();
+        $objCollection->resources()->attach($objRequest->get('resource_id'));
+        return response()->json(['success'=>'Add resource to collection']);
     }
 
     /**
      * Remove the specified resource from storage.
-     * @param  int $intCollectionId,$intResourceId
+     * @param  \Illuminate\Http\Request  $objRequest
+     * @param  int $intCollectionId
      * @return \Illuminate\Http\Response
      */
-    public function postRemoveToResource(Request $obRequest,$intCollectionId) {
+    public function postRemoveResourceToCollection(Request $objRequest,$intCollectionId) {
 
         $objCollection = Collection::findOrFail($intCollectionId);
-        $objCollection->resources()->detach($obRequest->get('resource_id'));
-       return redirect('collections/'.$intCollectionId)->with('success', 'Data is successfully deleted');
+        $objCollection->resources()->detach($objRequest->get('resource_id'));
+        return response()->json(['success'=>'Remove resource to collection']);
     }
 
     /**

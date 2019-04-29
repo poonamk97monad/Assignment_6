@@ -46,7 +46,7 @@ class Resource extends Model
     }*/
 
     protected $fillable = [
-        'title', 'description', 'file_upload'
+        'title','slug', 'description', 'file_upload'
     ];
 
     public function collection() {

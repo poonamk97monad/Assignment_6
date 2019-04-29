@@ -19,14 +19,14 @@ Route::get('/', function () {
 });
 
 Route::resource('resources','ResourcesController');
-Route::post('add-to-collection/{id}','ResourcesController@postAddToCollection');
-Route::post('remove-to-collection/{id}','ResourcesController@postRemoveToCollection');
+Route::post('add-to-collection/{id}','ResourcesController@postAddCollectionToResource');
+Route::post('remove-to-collection/{id}','ResourcesController@postRemoveCollectionToResource');
 Route::post('add_favorites_resource/{id}','ResourcesController@postSetFavorite');
 
 
 Route::resource('collections','CollectionsController');
-Route::post('add-to-resources/{id}','CollectionsController@postAddToResource');
-Route::post('remove-to-resources/{id}','CollectionsController@postRemoveToResource');
+Route::post('add-to-resources/{id}','CollectionsController@postAddResourceToCollection');
+Route::post('remove-to-resources/{id}','CollectionsController@postRemoveResourceToCollection');
 Route::post('add_favorites_collection/{id}','CollectionsController@postSetFavorite');
 
 

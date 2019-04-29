@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use App\Helpers\CreateSlug;
 use App\Model\Resource;
 use App\Model\Collection;
+use App\Helpers\CreateSlug;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redis;
-//use App\Http\Requests\StoreAddResourceToCollection;
+use App\Http\Requests\StoreAddCollectionToResource;
 
 class ResourcesController extends Controller
 {
+    const INT_LIMIT = 5;
 
     /**
      * Display a listing of the resource.
@@ -18,14 +19,13 @@ class ResourcesController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index() {
-        $arrObjResource = Resource::latest()->paginate(5);
+        $arrObjResource = Resource::latest()->paginate(self::INT_LIMIT);
         return view('resource.index', compact('arrObjResource'))
             ->with('i', (request()->input('page', 1) - 1) * 5);
     }
 
     /**
      * Show the form for creating a new resource.
-     *
      * @return \Illuminate\Http\Response
      */
     public function create() {
@@ -36,49 +36,56 @@ class ResourcesController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param $objResourcetoCollectionRequest
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $objResourceRequest) {
-       /* dd($objResourceRequest->input('file_upload'));*/
-       /* $file_upload   = $objResourceRequest->file('file_upload');
-         dd($file_upload);
-        $strNewName    = rand() . '.' .  $file_upload->getClientOriginalExtension();
-        $file_upload->move(public_path('file_upload'), $strNewName);*/
-        $resource = new Resource;
-        $resource->title       = $objResourceRequest->input('title');
-        $resource->slug        = $objResourceRequest->input('slug');
-        $resource->description = $objResourceRequest->input('description');
-        $resource->file_upload = $objResourceRequest->input('file_upload');
-        $resource->save();
-       return redirect('resources')->with('success', 'Data Added successfully.');
+    public function store(StoreAddCollectionToResource $objResourceToCollectionRequest) {
+
+        $objResource        = new resource();
+        $file_upload      = $objResourceToCollectionRequest->file('file_upload');
+        $strNewName       = rand() . '.' . $file_upload->getClientOriginalExtension();
+        $file_upload->move(public_path('file_upload'), $strNewName);
+        $arrFormData      = array(
+            'title'       => $objResourceToCollectionRequest->title,
+            'slug'        => (new CreateSlug())->get($objResourceToCollectionRequest->title),
+            'description' => $objResourceToCollectionRequest->description,
+            'file_upload' => $strNewName
+        );
+
+
+
+//        Resource::create($arrFormData);
+        $objResource->save();
+
+        $intLastKey = $objResource->getKey();
+
+        $objResourceLast = Resource::where('id',$intLastKey)->get();
+
+        return response()->json(['success' => 'add data ','data' => $objResourceLast]);
     }
 
     /**
      * Display the specified resource.
-     *
      * @param  int  $intId
      * @return \Illuminate\Http\Response
      */
     public function show($intId) {
         $arrObjResources      = Resource::findOrFail($intId);
         $arrObjCollection     = Collection::all();
-
         return view('resource.view', array('arrObjCollection' => $arrObjCollection, 'arrObjResources' => $arrObjResources));
 
     }
 
     /**
      * Update the specified resource in storage.
-     *
      * @param  $obRequest
      * @param  $intResourceId
      * @return \Illuminate\Http\Response
      */
-    public function postAddToCollection(Request $obRequest, $intResourceId) {
+    public function postAddCollectionToResource(Request $objRequest, $intResourceId) {
         $objResource = Resource::find($intResourceId);
-        $objResource->collections()->attach($obRequest->get('collection_id'));
-       return redirect('resources/'.$intResourceId)->with('success', 'Data is successfully deleted');
+        $objResource->collections()->attach($objRequest->get('collection_id'));
+        return response()->json(['success'=>'Add collection to resource ']);
 
   }
 
@@ -87,12 +94,12 @@ class ResourcesController extends Controller
      * @param  $intResourceId
      * @return \Illuminate\Http\Response
      */
-    public function postRemoveToCollection(Request $obRequest, $intResourceId) {
+    public function postRemoveCollectionToResource(Request $objRequest, $intResourceId) {
         $objResource = Resource::find($intResourceId);
-        $objResource->collections()->detach($obRequest->get('collection_id'));
-        return redirect('resources/'.$intResourceId)->with('success', 'Data is successfully deleted');
-    }
+        $objResource->collections()->detach($objRequest->get('collection_id'));
+        return response()->json(['success'=>'Data is successfully deleted']);
 
+    }
 
     /**
      * Add in favrite
@@ -107,7 +114,8 @@ class ResourcesController extends Controller
         else {
             $objRedis = Redis::sadd('favorite:resource', $intUserId);
         }
-        return redirect()->back();
+        return response()->json(['success'=>'ghngh']);
+
     }
 
     /*public function search() {

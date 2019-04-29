@@ -99,7 +99,6 @@
 
             e.preventDefault();
             var collection_id = $(this).attr("value");
-            // var collection_id = $("input[name=collection_id]").val();
             $('#collection').modal('toggle');
             $.ajax({
 
@@ -110,8 +109,7 @@
                 data:{collection_id:collection_id},
 
                 success:function(data){
-
-                    /* alert(data.success);*/
+                    window.location="/collections/{{$arrObjResources->id}}"
 
                 }
             });
@@ -129,8 +127,7 @@
                 data:{collection_id:collection_id},
 
                 success:function(data){
-
-                    /* alert(data.success);*/
+                    window.location="/resources/{{$arrObjResources->id}}"
 
                 }
             });

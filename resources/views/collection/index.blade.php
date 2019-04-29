@@ -46,15 +46,12 @@
                 <td>
                     <a href="{{route('collections.show',$objCollection->id)}}" class="btn btn-primary">view</a>
                 </td>
-                <td>
-                    <form action="/add_favorites_collection/{{$objCollection->id}}" method="post">
-                        {{ csrf_field() }}
-                        @if($objCollection->isFavortted() == 1)
-                            <button class="btn btn-success">UnFavorites</button>
-                        @else
-                            <button class="btn btn-success">Favorites</button>
-                        @endif
-                    </form>
+                <td class="collection_{{$objCollection->getKey()}}">
+                    @if($objCollection->isFavortted() == 1)
+                        <button class="btn btn-success btn-favorites" data-id="{{$objCollection->getKey()}}" data-value="true">UnFavorites</button>
+                    @else
+                        <button class="btn btn-success btn-favorites" data-id="{{$objCollection->getKey()}}" data-value="false">Favorites</button>
+                    @endif
                 </td>
             </tr>
         @endforeach
@@ -82,13 +79,6 @@
                             </div>
                             <br/><br/><br/>
                             <div class="form-group">
-                                <label class="col-md-4 text-right">Enter Slug</label>
-                                <div class="col-md-8">
-                                    <input type="text" name="slug" id="slug" class="form-control" value="{{ old('slug') }}" placeholder="post-slug"/>
-                                </div>
-                            </div>
-                            <br/><br/><br/>
-                            <div class="form-group">
                                 <label class="col-md-4 text-right">Enter Description</label>
                                 <div class="col-md-8">
                                     <input type="text" name="description" id="description" class="form-control input-lg" />
@@ -96,10 +86,7 @@
                             </div>
                             <br /><br /><br />
                             <div class="form-group text-center">
-                               {{-- <input type="hidden" name="button_action" id="button_action" value="insert" />
-                                <input type="submit" name="add" id="add" class="btn btn-primary input-lg" value="Add" />--}}
                                 <button class="btn btn-primary btn-submit">Submit</button>
-                               {{-- <input type="submit" name="add" class="btn btn-primary input-lg" value="Add" />--}}
                             </div>
                         </form>
                     </div>
@@ -121,7 +108,6 @@
 
             e.preventDefault();
             var title = $("input[name=title]").val();
-            var slug = $("input[name=slug]").val();
             var description = $("input[name=description]").val();
             $('#collectionsModal').modal('toggle');
             $.ajax({
@@ -130,15 +116,40 @@
 
                 url:'/collections/post',
 
-                data:{title:title, slug:slug, description:description},
+                data:{title:title, description:description},
 
                 success:function(data){
-
-                   /* alert(data.success);*/
+                    alert(data.success);
+                    window.location="/collections";
 
                 }
             });
 
+        });
+        $(".btn-favorites").click(function(e){
+
+            e.preventDefault();
+
+            var boolIsFavoritted = $(this).data('value');
+            var intCollectionId = $(this).data('id');
+
+            $.ajax({
+
+                type:'POST',
+
+                url:'/add_favorites_collection/' + intCollectionId,
+
+                success:function(data){
+
+                    console.log(boolIsFavoritted)
+                    if(boolIsFavoritted) {
+                        $('.collection_'+intCollectionId+' button').html('Favorites').data('value', false);
+                    }
+                    else {
+                        $('.collection_'+intCollectionId+' button').html('UnFavorites').data('value', true);
+                    }
+                }
+            });
         });
     </script>
     </body>

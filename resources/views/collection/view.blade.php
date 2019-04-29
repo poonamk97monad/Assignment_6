@@ -56,31 +56,26 @@
                 </div>
                 <div class="modal-body">
                     <div>
-                        <form method="post" action="{{ route('collections.store') }}" enctype="multipart/form-data">
-                            {{ csrf_field() }}
-                            @if($arrObjResources->count())
-                                <table class="table table-bordered table-striped">
-                                    <tr>
-                                        <th width="35%">File</th>
-                                        <th width="35%">Title</th>
-                                        <th width="35%">Slug</th>
-                                        <th width="35%">Description</th>
-                                        <th width="30%">Action</th>
-                                    </tr>
+                        @if($arrObjResources->count())
+                            <table class="table table-bordered table-striped">
+                                <tr>
+                                    <th width="35%">File</th>
+                                    <th width="35%">Title</th>
+                                    <th width="35%">Slug</th>
+                                    <th width="35%">Description</th>
+                                    <th width="30%">Action</th>
+                                </tr>
                                     @foreach($arrObjResources as $objResource)
-                                        <tr>
-                                            <td><img src="{{ URL::to('/') }}/file_upload/{{ $objResource->file_upload }}" class="img-thumbnail" width="75"/></td>
-                                            <td>{{ $objResource->title }}</td>
-                                            <td>{{ $objResource->slug }}</td>
-                                            <td>{{ $objResource->description }}</td>
-                                            <td>
-                                                <button class="btn btn-info btn-addcollection" value="{{ $objResource->id}}" >Add to collection</button>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </table>
-                            @endif
-                        </form>
+                                <tr>
+                                    <td><img src="{{ URL::to('/') }}/file_upload/{{ $objResource->file_upload }}" class="img-thumbnail" width="75"/></td>
+                                    <td>{{ $objResource->title }}</td>
+                                    <td>{{ $objResource->slug }}</td>
+                                    <td>{{ $objResource->description }}</td>
+                                    <td><button class="btn btn-info btn-addcollection" value="{{ $objResource->id}}" >Add to collection</button></td>
+                                </tr>
+                                @endforeach
+                            </table>
+                        @endif
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -100,7 +95,6 @@
 
             e.preventDefault();
             var resource_id = $(this).attr("value");
-            /*var resource_id = $("input[name=resource_id]").val();*/
             $('#resources').modal('toggle');
             console.log(resource_id);
             $.ajax({
@@ -113,7 +107,8 @@
 
                 success:function(data){
 
-                    /* alert(data.success);*/
+                    alert(data.success);
+                    window.location="/collections/{{$objCollection->id}}";
 
                 }
             });
@@ -132,8 +127,8 @@
 
                 success:function(data){
 
-                    /* alert(data.success);*/
-
+                    alert(data.success);
+                    window.location="/collections/{{$objCollection->id}}";
                 }
             });
         });

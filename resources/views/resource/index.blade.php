@@ -52,15 +52,12 @@
                 <td>
                     <a href="{{route('resources.show',$objResource->id)}}" class="btn btn-primary">view</a>
                 </td>
-                <td>
-                    <form action="/add_favorites_resource/{{$objResource->id}}" method="post">
-                        {{ csrf_field() }}
-                        @if($objResource->isFavortted() == 1)
-                            <button class="btn btn-success">UnFavorites</button>
-                        @else
-                            <button class="btn btn-success">Favorites</button>
-                        @endif
-                    </form>
+                <td class="resource_{{$objResource->getKey()}}">
+                    @if($objResource->isFavortted() == 1)
+                        <button class="btn btn-success btn-favorites" data-id="{{$objResource->getKey()}}" data-value="true">UnFavorites</button>
+                    @else
+                        <button class="btn btn-success btn-favorites" data-id="{{$objResource->getKey()}}" data-value="false">Favorites</button>
+                    @endif
                 </td>
             </tr>
         @endforeach
@@ -78,7 +75,8 @@
                 </div>
                 <div class="modal-body">
                     <div>
-                        <form >
+                        <form method="post" id="upload_form" enctype="multipart/form-data" >
+                            {{ csrf_field() }}
                             <span id="form_output"></span>
                             <div class="form-group">
                                 <label class="col-md-4 text-right">Enter Title of File</label>
@@ -87,12 +85,6 @@
                                 </div>
                             </div>
                             <br/><br/><br/>
-                            <div class="form-group">
-                                <label class="col-md-4 text-right">Enter Slug</label>
-                                <div class="col-md-8">
-                                    <input type="text" name="slug" id="slug" class="form-control" value="{{ old('slug') }}" placeholder="post-slug"/>
-                                </div>
-                            </div>
                             <div class="form-group">
                                 <label class="col-md-4 text-right">Enter Description</label>
                                 <div class="col-md-8">
@@ -128,30 +120,50 @@
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             }
         });
-    $(".btn-submit").click(function(e){
-
+    $("#upload_form").submit(function(e){
         e.preventDefault();
-        var title = $("input[name=title]").val();
-        var slug = $("input[name=slug]").val();
-        var description = $("input[name=description]").val();
-        var file_upload = $("input[name=file_upload]").val();
         $('#resourceModal').modal('toggle');
         $.ajax({
-            type:'POST',
             url:'/resources/post',
-            contentType: 'multipart/form-data',
-            // mimeType: "multipart/form-data",
-            // contentType: false,
+            method:"POST",
+            data:new FormData(this),
+            dataType:'JSON',
+            contentType: false,
             cache: false,
             processData: false,
-            data:{title:title, slug:slug, description:description, file_upload:file_upload},
 
             success:function(data){
-
+               console.log(data);
                  alert(data.success);
+                window.location="/resources";
 
             }
         });
     });
+        $(".btn-favorites").click(function(e){
+
+            e.preventDefault();
+
+            var boolIsFavoritted = $(this).data('value');
+            var intResourceId = $(this).data('id');
+
+            $.ajax({
+
+                type:'POST',
+
+                url:'/add_favorites_resource/' + intResourceId,
+
+                success:function(data){
+
+                    console.log(boolIsFavoritted)
+                    if(boolIsFavoritted) {
+                        $('.resource_'+intResourceId+' button').html('Favorites').data('value', false);
+                    }
+                    else {
+                        $('.resource_'+intResourceId+' button').html('UnFavorites').data('value', true);
+                    }
+                }
+            });
+        });
     </script>
 @endsection
