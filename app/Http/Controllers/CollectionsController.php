@@ -4,9 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Model\Resource;
 use App\Model\Collection;
-use Illuminate\Http\Request;
 use App\Helpers\CreateSlug;
 use Illuminate\Support\Facades\Redis;
+use App\Http\Requests\StoreAddCollectionResource;
 use App\Http\Requests\StoreAddResourceToCollection;
 
 class CollectionsController extends Controller
@@ -57,7 +57,7 @@ class CollectionsController extends Controller
      * @param  int  $intCollectionId
      * @return \Illuminate\Http\Response
      */
-    public function postAddResourceToCollection(Request $objRequest,$intCollectionId) {
+    public function postAddResourceToCollection(StoreAddCollectionResource $objRequest,$intCollectionId) {
         $objCollection = Collection::find($intCollectionId);
         $objCollection->resources()->attach($objRequest->get('resource_id'));
         return response()->json(['success'=>'Add resource to collection']);
@@ -69,7 +69,7 @@ class CollectionsController extends Controller
      * @param  int $intCollectionId
      * @return \Illuminate\Http\Response
      */
-    public function postRemoveResourceToCollection(Request $objRequest,$intCollectionId) {
+    public function postRemoveResourceToCollection(StoreAddCollectionResource $objRequest,$intCollectionId) {
 
         $objCollection = Collection::findOrFail($intCollectionId);
         $objCollection->resources()->detach($objRequest->get('resource_id'));
